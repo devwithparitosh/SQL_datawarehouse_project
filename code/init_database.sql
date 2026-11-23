@@ -94,73 +94,122 @@ CREATE TABLE bronze.erp_px_cat_g1(
 
 CREATE OR ALTER PROCEDURE bronze.load_bronze AS 
 BEGIN
-	--Empty the table first than ....
-	TRUNCATE Table bronze.crm_customer_info;
+	DECLARE @start_time DATETIME, @end_time DATETIME, @batch_start_time DATETIME , @batch_end_time DATETIME;
+	BEGIN TRY
+		SET @batch_start_time=GETDATE();             -- TO CHECK THE LOAD TIME OF WHOLE PROCEDURE
 
-	-- LOAD THE DATA INTO THE TABLE
-	BULK INSERT bronze.crm_customer_info
-	FROM 'C:\Users\parit\Downloads\sql-data-warehouse-project\datasets\source_crm\customer_info.csv'
-	WITH (
-		FIRSTROW =2,
-		FIELDTERMINATOR =',',
-		TABLOCK
-	);
+		PRINT 'LOADING BRONZE LAYER';
 
-	-- SELECT * FROM bronze.crm_customer_info;
+		SET @start_time=GETDATE();
+		PRINT '>> TABLE :bronze.crm_customer_info';
+		TRUNCATE Table bronze.crm_customer_info;       --Empty the table first than ....
 
-	TRUNCATE TABLE bronze.crm_prod_info;
-	BULK INSERT bronze.crm_prod_info
-	FROM 'C:\Users\parit\Downloads\sql-data-warehouse-project\datasets\source_crm\prod_info.csv'
-	WITH(
-		FIRSTROW=2,
-		FIELDTERMINATOR=',',
-		TABLOCK
-	);
+		-- LOAD THE DATA INTO THE TABLE via source file path.
+		BULK INSERT bronze.crm_customer_info
+		FROM 'C:\Users\parit\Downloads\sql-data-warehouse-project\datasets\source_crm\customer_info.csv'
+		WITH (
+			FIRSTROW =2,
+			FIELDTERMINATOR =',',
+			TABLOCK
+		);
+		SET @end_time=GETDATE();
+		PRINT '>> LOAD Duration : '+ CAST(DATEDIFF(second ,@start_time,@end_time) AS NVARCHAR) + ' seconds';
 
-	-- SELECT * FROM bronze.crm_prod_info;
+		-- SELECT * FROM bronze.crm_customer_info;
+		PRINT '------------------------';
 
-	TRUNCATE TABLE bronze.crm_sales_details;
-	BULK INSERT bronze.crm_sales_details
-	FROM 'C:\Users\parit\Downloads\sql-data-warehouse-project\datasets\source_crm\sales_details.csv'
-	WITH (
-		FIRSTROW = 2,
-		FIELDTERMINATOR=',',
-		TABLOCK
-	);
+		PRINT '>> LOAD TABLE :bronze.crm_prod_info';
+		SET @start_time=GETDATE();
+		TRUNCATE TABLE bronze.crm_prod_info;
+		BULK INSERT bronze.crm_prod_info
+		FROM 'C:\Users\parit\Downloads\sql-data-warehouse-project\datasets\source_crm\prod_info.csv'
+		WITH(
+			FIRSTROW=2,
+			FIELDTERMINATOR=',',
+			TABLOCK
+		);
+		SET @end_time=GETDATE();
+		PRINT 'LOAD DURATION :' + CAST(DATEDIFF(second,@start_time,@end_time) as nvarchar) +' seconds';
 
-	-- SELECT * FROM bronze.crm_sales_details;
+		-- SELECT * FROM bronze.crm_prod_info;
+		PRINT '------------------------';
 
-	TRUNCATE TABLE bronze.erp_loc;
-	BULK INSERT bronze.erp_loc
-	FROM 'C:\Users\parit\Downloads\sql-data-warehouse-project\datasets\source_erp\LOC_A101.csv'
-	WITH (
-		FIRSTROW =2,
-		FIELDTERMINATOR =',',
-		TABLOCK
-	);
+		SET @start_time=GETDATE();
+		PRINT 'LOAD TABLE : bronze.crm_sales_details';
+		TRUNCATE TABLE bronze.crm_sales_details;
+		BULK INSERT bronze.crm_sales_details
+		FROM 'C:\Users\parit\Downloads\sql-data-warehouse-project\datasets\source_crm\sales_details.csv'
+		WITH (
+			FIRSTROW = 2,
+			FIELDTERMINATOR=',',
+			TABLOCK
+		);
+		SET @end_time=GETDATE();
+		PRINT 'LOAD DUARTION :'+ CAST(DATEDIFF(second,@start_time,@end_time) as NVARCHAR) +' seconds';
 
-	-- SELECT * FROM bronze.erp_loc;
+		-- SELECT * FROM bronze.crm_sales_details;
+		PRINT '------------------------';
 
-	TRUNCATE TABLE bronze.erp_cust;
-	BULK INSERT bronze.erp_cust
-	FROM 'C:\Users\parit\Downloads\sql-data-warehouse-project\datasets\source_erp\CUST_AZ12.csv'
-	WITH(
-		FIRSTROW = 2,
-		FIELDTERMINATOR =',',
-		TABLOCK
-	);
+		SET @start_time=GETDATE();
+		PRINT 'LOAD TABLE : bronze.erp_loc'
+		TRUNCATE TABLE bronze.erp_loc;
+		BULK INSERT bronze.erp_loc
+		FROM 'C:\Users\parit\Downloads\sql-data-warehouse-project\datasets\source_erp\LOC_A101.csv'
+		WITH (
+			FIRSTROW =2,
+			FIELDTERMINATOR =',',
+			TABLOCK
+		);
+		SET @end_time=GETDATE();
+		PRINT 'LOAD DURATION :' + CAST(DATEDIFF(second,@start_time,@end_time) as NVARCHAR) + ' seconds';
+		
+		-- SELECT * FROM bronze.erp_loc;
+		PRINT '------------------------';
 
-	-- SELECT * FROM bronze.erp_cust;
+		set @start_time=GETDATE();
+		PRINT 'LOAD TABLE : bronze.erp_cust';
+		TRUNCATE TABLE bronze.erp_cust;
+		BULK INSERT bronze.erp_cust
+		FROM 'C:\Users\parit\Downloads\sql-data-warehouse-project\datasets\source_erp\CUST_AZ12.csv'
+		WITH(
+			FIRSTROW = 2,
+			FIELDTERMINATOR =',',
+			TABLOCK
+		);
+		SET @end_time=GETDATE();
 
-	TRUNCATE TABLE bronze.erp_px_cat_g1;
-	BULK INSERT bronze.erp_px_cat_g1
-	FROM 'C:\Users\parit\Downloads\sql-data-warehouse-project\datasets\source_erp\PX_CAT_G1V2.csv'
-	WITH (
-		FIRSTROW =2,
-		FIELDTERMINATOR =',',
-		TABLOCK
-	);
+		PRINT 'LOAD DUARTION :' + CAST(DATEDIFF(second,@start_time,@end_time) as NVARCHAR) +' seconds';
+		-- SELECT * FROM bronze.erp_cust;
+		PRINT '------------------------';
 
-	-- SELECT * FROM bronze.erp_px_cat_g1;
+		SET @start_time=GETDATE();
+		PRINT 'LOAD TABLE : bronze.erp_px_cat_g1';
+		TRUNCATE TABLE bronze.erp_px_cat_g1;
+		BULK INSERT bronze.erp_px_cat_g1
+		FROM 'C:\Users\parit\Downloads\sql-data-warehouse-project\datasets\source_erp\PX_CAT_G1V2.csv'
+		WITH (
+			FIRSTROW =2,
+			FIELDTERMINATOR =',',
+			TABLOCK
+		);
+		SET @end_time=GETDATE();
 
+		PRINT 'LOAD DUARTION :' + CAST(DATEDIFF(second,@start_time,@end_time) as NVARCHAR) + 'seconds';
+
+		-- SELECT * FROM bronze.erp_px_cat_g1;
+		PRINT '------------------------';
+
+		SET @batch_end_time=GETDATE();
+
+		PRINT 'Total Duration : ' +CAST(DATEDIFF(SECOND ,@batch_start_time,@batch_end_time) AS NVARCHAR) +' seconds';
+	END TRY 
+	BEGIN CATCH
+		PRINT '=======================================';
+		PRINT 'Error Message' + ERROR_MESSAGE();
+		PRINT 'Error Number' + CAST (ERROR_NUMBER() AS NVARCHAR );
+		PRINT 'Error State' + CAST(ERROR_STATE() AS NVARCHAR);
+		PRINT '=======================================';
+	END CATCH
 END
+
+EXEC bronze.load_bronze;
