@@ -96,7 +96,7 @@ from bronze.crm_prod_info;
 -- ***************************RECREATE A TABLE WITH NEW COLUMN IN SQL_datawarehouse_project\code\silver_layer\DDL_for_silver_layer.sql
 
 
-TRUNCATE TABLE silver. silver.crm_prod_info;
+TRUNCATE TABLE silver.crm_prod_info;
 INSERT INTO silver.crm_prod_info(
 	prd_id ,
 	cat_id ,
