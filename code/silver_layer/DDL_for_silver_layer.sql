@@ -24,7 +24,7 @@ CREATE TABLE silver.crm_customer_info (
 	dwh_create_date DATETIME2 DEFAULT GETDATE()            -- to store the creation date of the data insert
 );
 
-IF OBJECT_ID('silver.crm_prod_info','U') IS NOT NULL
+/*IF OBJECT_ID('silver.crm_prod_info','U') IS NOT NULL
 	DROP TABLE silver.crm_prod_info;
 
 CREATE TABLE silver.crm_prod_info(
@@ -37,7 +37,23 @@ CREATE TABLE silver.crm_prod_info(
 	prd_end_dt DATETIME,
 	dwh_create_date DATETIME2 DEFAULT GETDATE()
 );
+*/
+IF OBJECT_ID('silver.crm_prod_info','U') IS NOT NULL
+	DROP TABLE silver.crm_prod_info;
 
+CREATE TABLE silver.crm_prod_info(
+	prd_id INT,
+	cat_id NVARCHAR(50),
+	sls_prd_key NVARCHAR(50),
+	prd_nm NVARCHAR(50),
+	prd_cost INT,
+	prd_line NVARCHAR(50),
+	prd_start_dt DATETIME,
+	prd_end_dt DATETIME,
+	dwh_create_date DATETIME2 DEFAULT GETDATE()
+);                    -- BECAUSE ADD NEW COLUMN IN THE TABLE
+
+/*
 IF OBJECT_ID('silver.crm_sales_details','U') IS NOT NULL
 	DROP TABLE silver.crm_sales_details;
 
@@ -53,6 +69,22 @@ CREATE TABLE silver.crm_sales_details(
 	sls_price INT,
 	dwh_create_date DATETIME2 DEFAULT GETDATE() 
 );
+*/
+IF OBJECT_ID('silver.crm_sales_details','U') IS NOT NULL
+	DROP TABLE silver.crm_sales_details;
+CREATE TABLE silver.crm_sales_details(
+	sls_ord_num NVARCHAR(50),
+	sls_prd_key NVARCHAR(50),
+	sls_cust_id INT,
+	sls_order_dt DATE,                   -- UPDATE INT TO DATE
+	sls_ship_dt DATE,
+	sls_due_dt DATE ,
+	sls_sales INT,
+	sls_quantity INT,
+	sls_price INT,
+	dwh_create_date DATETIME2 DEFAULT GETDATE() 
+);
+
 
 IF OBJECT_ID('silver.erp_loc','U') IS NOT NULL
 	DROP TABLE silver.erp_loc;
