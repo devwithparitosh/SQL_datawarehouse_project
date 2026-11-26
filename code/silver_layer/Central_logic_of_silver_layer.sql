@@ -1,4 +1,5 @@
-SELECT * FROM bronze.crm_customer_info;
+--SELECT * FROM bronze.crm_customer_info;
+
 /*
 -- Find the duplicate in primary key 
 SELECT 
@@ -29,6 +30,8 @@ where cst_firstname != TRIM(cst_firstname);
 */
 
 -- Write a central logic to combine all the logic AND INSERT INTO THE TABLE OF SILVER LAYER
+
+TRUNCATE TABLE silver.crm_customer_info;
 INSERT INTO silver.crm_customer_info(
 	cst_id ,
 	cst_key ,
@@ -70,7 +73,7 @@ FROM(
 
 -- ================================================================================
 
-SELECT * FROM bronze.crm_prod_info;
+--SELECT * FROM bronze.crm_prod_info;
 
 /*
 -- STEP 1:- check for Nulls or DUPLICATE IN THE PRIMARY KEY.
@@ -90,22 +93,10 @@ from bronze.crm_prod_info;
 */
 
 
+-- ***************************RECREATE A TABLE WITH NEW COLUMN IN SQL_datawarehouse_project\code\silver_layer\DDL_for_silver_layer.sql
 
-IF OBJECT_ID('silver.crm_prod_info','U') IS NOT NULL
-	DROP TABLE silver.crm_prod_info;
 
-CREATE TABLE silver.crm_prod_info(
-	prd_id INT,
-	cat_id NVARCHAR(50),
-	sls_prd_key NVARCHAR(50),
-	prd_nm NVARCHAR(50),
-	prd_cost INT,
-	prd_line NVARCHAR(50),
-	prd_start_dt DATETIME,
-	prd_end_dt DATETIME,
-	dwh_create_date DATETIME2 DEFAULT GETDATE()
-);                    -- BECAUSE ADD NEW COLUMN IN THE TABLE
-
+TRUNCATE TABLE silver. silver.crm_prod_info;
 INSERT INTO silver.crm_prod_info(
 	prd_id ,
 	cat_id ,
@@ -139,7 +130,9 @@ FROM bronze.crm_prod_info;
 
 -- =====================================================================================
 
-SELECT * FROM bronze.crm_sales_details;
+--SELECT * FROM bronze.crm_sales_details;
+
+
 /*
 SELECT 
 	sls_ord_num ,
@@ -196,21 +189,10 @@ ORDER BY sls_sales,
 		2) IF PRice is 0 or null, calculate it using Sales and Quanity.
 		3) IF Price is negative , convert it to a positive value.
 */
-IF OBJECT_ID('silver.crm_sales_details','U') IS NOT NULL
-	DROP TABLE silver.crm_sales_details;
-CREATE TABLE silver.crm_sales_details(
-	sls_ord_num NVARCHAR(50),
-	sls_prd_key NVARCHAR(50),
-	sls_cust_id INT,
-	sls_order_dt DATE,                   -- UPDATE INT TO DATE
-	sls_ship_dt DATE,
-	sls_due_dt DATE ,
-	sls_sales INT,
-	sls_quantity INT,
-	sls_price INT,
-	dwh_create_date DATETIME2 DEFAULT GETDATE() 
-);
 
+-- ***************************RECREATE A TABLE WITH NEW COLUMN IN SQL_datawarehouse_project\code\silver_layer\DDL_for_silver_layer.sql
+
+TRUNCATE TABLE silver.crm_sales_details;
 INSERT INTO silver.crm_sales_details(
 	sls_ord_num ,
 	sls_prd_key ,
@@ -259,7 +241,82 @@ FROM bronze.crm_sales_details;
 -- SELECT * FROM silver.crm_sales_details;
 -- ===============================================================================================
 
-SELECT * FROM bronze.erp_cust;
+--SELECT * FROM bronze.erp_cust;
 
-SELECT * FROM bronze.erp_loc;
+ --Step 1:- recreate the cid to create relation between silver.crm_customer_info.
+ -- Step 2:- check the nulls of missing value
+-- Step 3:- check the valid date .
+/*		SELECT bdate FROM bronze.erp_cust
+		where DAY(bdate) > 31 or MONTH(bdate) > 12 or bdate > getdate();  */
+
+TRUNCATE TABLE silver.erp_cust;
+INSERT INTO silver.erp_cust(
+	cid,
+	bdate,
+	gen
+)
+
+SELECT 
+	CASE 
+		WHEN cid LIKE 'NAS%' THEN SUBSTRING(cid,4,LEN(cid)) 
+		ELSE cid
+	END AS cid,
+
+	CASE WHEN bdate > GETDATE() THEN NULL
+		ELSE bdate
+	END AS bdate,                  --Set the future birhday to Null
+
+	CASE 
+		WHEN UPPER(TRIM(gen)) IN ('F','FEMALE') THEN 'Female'
+		WHEN UPPER(TRIM(gen)) IN ('M','MALE') THEN 'Male'
+		ELSE 'N/A'
+	END AS gen                        -- NOrmalize the gender values and handle nulls, empty spaces, and unknown cases.
+FROM bronze.erp_cust;
+
+--Select * from silver.erp_cust
+
+ -- ==============================================================================================
+
+--SELECT * FROM bronze.erp_loc;
+
+-- find the out the possible distinct country
+	--SELECT distinct country FROM bronze.erp_loc;
+
+TRUNCATE TABLE silver.erp_loc;
+INSERT INTO silver.erp_loc(cid,country)
+SELECT 
+	REPLACE(cid,'-','') AS cid ,
+	CASE 
+		WHEN TRIM(country)='DE' THEN 'Germany'
+		WHEN TRIM(country) IN ('US','USA') THEN 'United States'
+		WHEN TRIM(country) = '' or country is null THEN 'N/A'
+		ELSE TRIM(country)
+	 END AS country
+FROM bronze.erp_loc;
+
+--SELECT * FROM silver.erp_loc;
+
+-- ===========================================================================
+
+--SELECT * FROM bronze.erp_px_cat_g1;
+
+/* STEP 1: Check for unwanted Spaces.
+
+SELECT *
+FROM bronze.erp_px_cat_g1
+WHERE cat != trim(cat) or subcat != trim(subcat) or maintenance != trim(maintenance)
+
+Step 2: check Data Consistancy and Standardization 
+
+SELECT DISTINCT 
+maintenance
+from bronze.erp_px_cat_g1         */
+
+TRUNCATE TABLE silver.erp_px_cat_g1;
+INSERT INTO silver.erp_px_cat_g1( id , cat,subcat,maintenance)
 SELECT * FROM bronze.erp_px_cat_g1;
+
+
+--SELECT * FROM silver.erp_px_cat_g1;
+
+-- ======================================================================================================
