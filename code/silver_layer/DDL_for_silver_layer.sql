@@ -2,13 +2,23 @@ USE Datawarehouse;
 GO
 
 -- TO ANALYSIS THE TABLE FOR FORGIEN KEY FIND OUT THE REALTION BETWEEN THEM
-SELECT * FROM bronze.crm_customer_info;
-SELECT * FROM bronze.crm_prod_info;
-SELECT * FROM bronze.crm_sales_details;
+--SELECT * FROM bronze.crm_customer_info;
+--SELECT * FROM bronze.crm_prod_info;
+--SELECT * FROM bronze.crm_sales_details;
 
-SELECT * FROM bronze.erp_cust;
-SELECT * FROM bronze.erp_loc;
-SELECT * FROM bronze.erp_px_cat_g1;
+--SELECT * FROM bronze.erp_cust;
+--SELECT * FROM bronze.erp_loc;
+--SELECT * FROM bronze.erp_px_cat_g1;
+
+/*
+====================================================================
+DDL script :Create Silver Table 
+====================================================================
+	 This Code Create table in the 'silver' Schema , dropping existing tables
+	 if  they already exist 
+	 Run this Code to re- define the DDL Struture of 'bronze layer ' tables
+
+*/
 
 IF OBJECT_ID ('silver.crm_customer_info','U') IS NOT NULL
 	DROP TABLE silver.crm_customer_info;
